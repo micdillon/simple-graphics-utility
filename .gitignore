@@ -1,6 +1,9 @@
 # Object files
 *.o
 
+# Debugging
+*.dSYM
+
 # Libraries
 *.lib
 *.a
@@ -15,3 +18,9 @@
 *.exe
 *.out
 *.app
+
+# Vi droppings
+.*.swp
+
+# The target
+sgutest
