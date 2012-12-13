@@ -215,6 +215,11 @@ void vec4_teardown(vec4fixture *f, gconstpointer test_data) {
 }
 
 void test_vec4_union(vec4fixture *f, gconstpointer ignored) {
+	g_assert(f->v.x == f->v.r);
+	g_assert(f->v.y == f->v.g);
+	g_assert(f->v.z == f->v.b);
+	g_assert(f->v.w == f->v.a);
+
 	g_assert(f->v.x == f->v.v[0]);
 	g_assert(f->v.y == f->v.v[1]);
 	g_assert(f->v.z == f->v.v[2]);

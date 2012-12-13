@@ -109,7 +109,3 @@ mat4 project_persp(SGUfloat fovy_rad, SGUfloat aspect,
 	return _m;
 }
 
-// #ifdef SGUTEST
-// 	#include "sgutest.c"
-// #endif
-

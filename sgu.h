@@ -45,6 +45,12 @@ typedef union {
 		SGUfloat z;
 		SGUfloat w;
 	};
+	struct {
+		SGUfloat r;
+		SGUfloat g;
+		SGUfloat b;
+		SGUfloat a;
+	};
 	SGUfloat v[4];
 } vec4;
 
