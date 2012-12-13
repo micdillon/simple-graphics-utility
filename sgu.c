@@ -1,6 +1,6 @@
 /*
- * sgu.c
  * - The Simple Graphics Utility
+ * sgu.c
  */
 #include "sgu.h"
 

@@ -1,10 +1,14 @@
 /*
- * sgu.h
  * - The Simple Graphics Utility
+ * sgu.h
  */
 #pragma once
 
 #include <math.h>
+
+/**
+	* .... Types .... 
+	*/
 
 #ifdef SGUTEST
 typedef double SGUfloat;
@@ -12,11 +16,6 @@ typedef double SGUfloat;
 typedef float SGUfloat;
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif	
-
-/* .... Types .... */
 typedef union {
 	struct {
 		SGUfloat x;
@@ -88,7 +87,14 @@ typedef union {
 } mat4;
 
 
-/* .... Functions .... */
+
+#ifdef __cplusplus
+extern "C" {
+#endif	
+
+/**
+  * .... Functions .... 
+  */
 SGUfloat len3(vec3 v);
 SGUfloat len4(vec4 v);
 vec3 norm3(vec3 v);
