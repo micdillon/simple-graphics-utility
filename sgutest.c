@@ -3,6 +3,7 @@
 #include <glib.h>
 
 #include "sgu.h"
+#include "shapes.h"
 
 /**
 	* takes floating point rounding errors
@@ -308,6 +309,14 @@ void test_rotateQ() {
 	sgu_assert_float_eq(v.z,-1.0);
 }
 
+/*
+ * test make_cube function
+ */
+void test_make_cube() {
+	gsu_cube c = make_cube(1.0);
+	g_assert(c.vert_count==8);
+}
+
 
 /*
  * main()
@@ -351,6 +360,8 @@ int main(int argc, char *argv[])
 						 quat_setup, test_quat_mult, quat_teardown);
 
 	g_test_add_func("/geom/rotateQ test", test_rotateQ);
+
+	g_test_add_func("/shapes/make_cube test", test_make_cube);
 
 	return g_test_run();
 }

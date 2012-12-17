@@ -25,7 +25,7 @@ vec4 norm4(vec4 v) {
 }
 
 vec3 abs3(vec3 v) {
-	vec3 _v = {.v={fabsf(v.x), fabsf(v.y), fabsf(v.z)}};
+	vec3 _v = {.v={fabs(v.x), fabs(v.y), fabs(v.z)}};
 	return _v;
 }
 

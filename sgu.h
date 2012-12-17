@@ -25,6 +25,10 @@ typedef union {
 		SGUfloat w;
 		SGUfloat h;
 	};
+	struct {
+		SGUfloat s;
+		SGUfloat t;
+	};
 	SGUfloat v[2];
 } vec2;
 
@@ -85,7 +89,6 @@ typedef union {
 	};
 	SGUfloat m[16];
 } mat4;
-
 
 
 #ifdef __cplusplus
