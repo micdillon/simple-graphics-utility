@@ -108,9 +108,13 @@ vec3 add3(vec3 a, vec3 b);
 vec3 scalar_mult3(vec3 v, SGUfloat s);
 vec3 cross3(vec3 a, vec3 b);
 SGUfloat dot3(vec3 a, vec3 b);
+
 quat multQ(quat a, quat b);
 vec3 rotateQ(quat q, vec3 v);
 quat conjQ(quat q);
+
+mat3 mult_mat3(mat3 a, mat3 b);
+mat4 mult_mat4(mat4 a, mat4 b);
 mat4 look_at(vec3 eye, vec3 center, vec3 up);
 mat4 project_persp(SGUfloat fovy_rad, SGUfloat aspect, 
 									 SGUfloat nearz, SGUfloat farz);

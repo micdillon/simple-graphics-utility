@@ -99,6 +99,38 @@ mat4 look_at(vec3 eye, vec3 center, vec3 up) {
 	return _m;
 }
 
+
+mat3 mult_mat3(mat3 a, mat3 b) {
+#define a(i,j) a.m[3*i+j]
+#define b(i,j) b.m[3*i+j]
+#define val(i,j) \
+	a(i,0)*b(0,j)+a(i,1)*b(1,j)+a(i,2)*b(2,j)
+	return (mat3){.m={
+		val(0,0), val(0,1), val(0,2),
+		val(1,0), val(1,1), val(1,2),
+		val(2,0), val(2,1), val(2,2)
+	}};
+#undef a
+#undef b
+#undef val
+}
+
+mat4 mult_mat4(mat4 a, mat4 b) {
+#define a(i,j) a.m[4*i+j]
+#define b(i,j) b.m[4*i+j]
+#define val(i,j) \
+	a(i,0)*b(0,j)+a(i,1)*b(1,j)+a(i,2)*b(2,j)+a(i,3)*b(3,j)
+	return (mat4){.m={
+		val(0,0), val(0,1), val(0,2), val(0,3),
+		val(1,0), val(1,1), val(1,2), val(1,3),
+		val(2,0), val(2,1), val(2,2), val(2,3),
+		val(3,0), val(3,1), val(3,2), val(3,3)
+	}};
+#undef a
+#undef b
+#undef val
+}
+
 mat4 project_persp(SGUfloat fovy_rad, SGUfloat aspect, 
 									 SGUfloat nearz, SGUfloat farz) {
 	SGUfloat cotan = 1.0 / tanf(fovy_rad / 2.0);

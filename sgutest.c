@@ -310,10 +310,106 @@ void test_rotateQ() {
 }
 
 /*
+ * matrix tests
+ */
+void test_mult_mat3() {	
+#define assert_m3eq(a, b) { 									\
+	for (int _i=0; _i<9; _i++) 									\
+		 	sgu_assert_float_eq(a.m[_i], b.m[_i]); 	\
+	}
+
+	/** check identity matrix */
+	mat3 i = (mat3){.m={
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0
+	}};
+
+	mat3 b = (mat3){.m={
+		sgu_rndf(), sgu_rndf(), sgu_rndf(),
+		sgu_rndf(), sgu_rndf(), sgu_rndf(),
+		sgu_rndf(), sgu_rndf(), sgu_rndf()
+	}};
+
+	mat3 c = mult_mat3(i, b);
+	assert_m3eq(b,c);
+
+	/** 
+		* check that multiplying two 180 degree rotations
+		* will get us back to the identitiy matrix
+	  */
+	mat3 a = (mat3){.m={
+		cos(M_PI), -sin(M_PI), 0.0,
+		sin(M_PI),  cos(M_PI), 0.0,
+		0.0, 				0.0, 			 1.0
+	}};
+
+	b = (mat3){.m={
+		cos(M_PI), -sin(M_PI), 0.0,
+		sin(M_PI),  cos(M_PI), 0.0,
+		0.0, 				0.0, 			 1.0,
+	}};
+
+	c = mult_mat3(a,b);
+	assert_m3eq(i,c);
+
+#undef assert_m3eq
+};
+
+
+void test_mult_mat4() {	
+#define assert_m4eq(a, b) { 									\
+	for (int _i=0; _i<16; _i++) 								\
+		 	sgu_assert_float_eq(a.m[_i], b.m[_i]); 	\
+	}
+
+	/** check identity matrix */
+	mat4 i = (mat4){.m={
+		1.0, 0.0, 0.0, 0.0,
+		0.0, 1.0, 0.0, 0.0,
+		0.0, 0.0, 1.0, 0.0,
+		0.0, 0.0, 0.0, 1.0,
+	}};
+
+	mat4 b = (mat4){.m={
+		sgu_rndf(), sgu_rndf(), sgu_rndf(), sgu_rndf(),
+		sgu_rndf(), sgu_rndf(), sgu_rndf(), sgu_rndf(),
+		sgu_rndf(), sgu_rndf(), sgu_rndf(), sgu_rndf(),
+		sgu_rndf(), sgu_rndf(), sgu_rndf(), sgu_rndf()
+	}};
+
+	mat4 c = mult_mat4(i, b);
+	assert_m4eq(b,c);
+
+	/** 
+		* check that multiplying two 180 degree rotations
+		* will get us back to the identitiy matrix
+	  */
+	mat4 a = (mat4){.m={
+		cos(M_PI), -sin(M_PI), 0.0, 0.0,
+		sin(M_PI),  cos(M_PI), 0.0, 0.0,
+		0.0, 				0.0, 			 1.0, 0.0,
+		0.0, 				0.0, 			 0.0, 1.0
+	}};
+
+	b = (mat4){.m={
+		cos(M_PI), -sin(M_PI), 0.0, 0.0,
+		sin(M_PI),  cos(M_PI), 0.0, 0.0,
+		0.0, 				0.0, 			 1.0, 0.0,
+		0.0, 				0.0, 			 0.0, 1.0
+	}};
+
+	c = mult_mat4(a,b);
+	assert_m4eq(i,c);
+
+#undef assert_m4eq
+};
+
+/*
  * test make_cube function
  */
 void test_make_cube() {
-	gsu_cube c = make_cube(1.0);
+	sgu_cube c = make_cube(1.0);
 	g_assert(c.vert_count==8);
 }
 
@@ -360,6 +456,9 @@ int main(int argc, char *argv[])
 						 quat_setup, test_quat_mult, quat_teardown);
 
 	g_test_add_func("/geom/rotateQ test", test_rotateQ);
+
+	g_test_add_func("/mat3/mult_mat3 test", test_mult_mat3);
+	g_test_add_func("/mat4/mult_mat4 test", test_mult_mat4);
 
 	g_test_add_func("/shapes/make_cube test", test_make_cube);
 
