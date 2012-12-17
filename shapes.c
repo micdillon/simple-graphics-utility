@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include "shapes.h"
 
-gsu_cube make_cube(SGUfloat len) {
+sgu_cube make_cube(SGUfloat len) {
 	/** initialize the verts and indices */
-	gsu_cube _c = {
+	sgu_cube _c = {
 		.verts={
 			{.v={-len,  len,  len}},
 			{.v={ len,  len,  len}},
@@ -31,7 +31,11 @@ gsu_cube make_cube(SGUfloat len) {
 		.norms={},
 		.norm_count = 8,
 		.tex_coords={},
-		.tex_coord_count = 8
+		.tex_coord_count = 8,
+		.aabb = {
+			.min={.x= len, .y= len, .z= len},
+			.max={.x=-len, .y=-len, .z=-len}
+		}
 	};
 
 	/** normals */

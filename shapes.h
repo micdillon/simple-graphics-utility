@@ -10,6 +10,11 @@
 extern "C" {
 #endif
 
+typedef struct {
+	vec3 min;
+	vec3 max;
+} sgu_aabb;
+
 /**
 	* cube
 	*/
@@ -25,9 +30,11 @@ typedef struct {
 
 	vec2 tex_coords[36];
 	int tex_coord_count;
-} gsu_cube;
 
-gsu_cube make_cube(SGUfloat side_length);
+	sgu_aabb aabb;
+} sgu_cube;
+
+sgu_cube make_cube(SGUfloat side_length);
 
 #ifdef __cplusplus
 }
