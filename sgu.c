@@ -79,9 +79,9 @@ vec3 rotateQ(quat q, vec3 v) {
     SGUfloat s = sinf(a);
     vec3 u = norm3(q.v);
 
-    vec3 _v = add3(scalar_mult3(v, c), 
-                                 add3(scalar_mult3(cross3(u, v), s),
-                                          scalar_mult3(u, dot3(u, v)*(1.0-c))));
+    vec3 _v = add3(scalar_mult3(v, c),
+                   add3(scalar_mult3(cross3(u, v), s),
+                   scalar_mult3(u, dot3(u, v)*(1.0-c))));
     return _v;
 }
 
