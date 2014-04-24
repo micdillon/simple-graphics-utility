@@ -74,9 +74,9 @@ quat multQ(quat a, quat b) {
 }
 
 vec3 rotateQ(quat q, vec3 v) {
-    SGUfloat a = 2.0 * acosf(q.s);
-    SGUfloat c = cosf(a);
-    SGUfloat s = sinf(a);
+    SGUfloat a = 2.0 * acos(q.s);
+    SGUfloat c = cos(a);
+    SGUfloat s = sin(a);
     vec3 u = norm3(q.v);
 
     vec3 _v = add3(scalar_mult3(v, c),
@@ -99,6 +99,51 @@ mat4 identity_mat4() {
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.0, 0.0, 0.0, 1.0
+    }};
+}
+
+mat4 translate_mat4(SGUfloat x, SGUfloat y, SGUfloat z) {
+    return (mat4){.m={
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        x  , y  , z  , 1.0
+    }};
+}
+
+mat4 scale_mat4(SGUfloat sx, SGUfloat sy, SGUfloat sz) {
+    return (mat4){.m={
+        sx , 0.0, 0.0, 0.0,
+        0.0, sy , 0.0, 0.0,
+        0.0, 0.0, sz , 0.0,
+        0.0, 0.0, 0.0, 1.0
+    }};
+}
+
+mat4 rotate_x_mat4(SGUfloat r) {
+    return (mat4){.m={
+        1.0, 0.0, 0.0, 0.0,
+        0.0, cos(r), sin(r), 0.0,
+        0.0, -sin(r), cos(r), 0.0,
+        0.0, 0.0, 0.0, 1.0
+    }};
+}
+
+mat4 rotate_y_mat4(SGUfloat r) {
+    return (mat4){.m={
+        cos(r), 0.0, -sin(r), 0.0,
+        0.0   , 1.0, 0.0    , 0.0,
+        sin(r), 0.0, cos(r) , 0.0,
+        0.0   , 0.0, 0.0    , 1.0
+    }};
+}
+
+mat4 rotate_z_mat4(SGUfloat r) {
+    return (mat4){.m={
+        cos(r) , sin(r), 0.0, 0.0,
+        -sin(r), cos(r), 0.0, 0.0,
+        0.0    , 0.0   , 1.0, 0.0,
+        0.0    , 0.0   , 0.0, 1.0
     }};
 }
 
@@ -148,7 +193,7 @@ mat4 look_at(vec3 eye, vec3 center, vec3 up) {
 
 mat4 project_persp(SGUfloat fovy_rad, SGUfloat aspect,
                    SGUfloat nearz, SGUfloat farz) {
-    SGUfloat cotan = 1.0 / tanf(fovy_rad / 2.0);
+    SGUfloat cotan = 1.0 / tan(fovy_rad / 2.0);
     mat4 _m = {.m={
         cotan / aspect, 0.0, 0.0, 0.0,
         0.0, cotan, 0.0, 0.0,

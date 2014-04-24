@@ -12,8 +12,14 @@
 
 #ifdef SGUTEST
 typedef double SGUfloat;
-#else
+#else // normal for using opengl on mobile
 typedef float SGUfloat;
+#define sin sinf
+#define asin asinf
+#define cos cosf
+#define acos acosf
+#define tan tanf
+#define atan atanf
 #endif
 
 typedef union {
@@ -115,6 +121,13 @@ quat conjQ(quat q);
 
 mat3 identity_mat3();
 mat4 identity_mat4();
+
+mat4 translate_mat4(SGUfloat x, SGUfloat y, SGUfloat z);
+mat4 scale_mat4(SGUfloat sx, SGUfloat sy, SGUfloat sz);
+mat4 rotate_x_mat4(SGUfloat rads);
+mat4 rotate_y_mat4(SGUfloat rads);
+mat4 rotate_z_mat4(SGUfloat rads);
+
 mat3 mult_mat3(mat3 a, mat3 b);
 mat4 mult_mat4(mat4 a, mat4 b);
 
