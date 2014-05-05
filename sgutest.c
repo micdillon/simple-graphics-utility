@@ -405,6 +405,35 @@ void test_mult_mat4() {
 #undef assert_m4eq
 };
 
+void test_mult_mat4_vec4() {
+    /**
+     * Check that multiplying a unit vector by a
+     * 90 degree rotation matrix works.
+     */
+    mat4 r90 = (mat4){.m={
+        cos(M_PI/2.0), -sin(M_PI/2.0), 0.0, 0.0,
+        sin(M_PI/2.0),  cos(M_PI/2.0), 0.0, 0.0,
+        0.0,           0.0,            1.0, 0.0,
+        0.0,           0.0,            0.0, 1.0
+    }};
+    vec4 x_u = (vec4){.v={1.0, 0.0, 0.0, 1.0}};
+    vec4 y_u = mult_mat4_vec4(r90, x_u);
+
+    // Should be <0,1,0,1> y-unit vector
+    sgu_assert_float_eq(y_u.x, 0.0);
+    sgu_assert_float_eq(y_u.y, 1.0);
+    sgu_assert_float_eq(y_u.z, 0.0);
+    sgu_assert_float_eq(y_u.w, 1.0);
+
+    vec4 neg_x_u = mult_mat4_vec4(r90, y_u);
+
+    // Should be <-1,0,0,1> negative x-unit vector
+    sgu_assert_float_eq(neg_x_u.x, -1.0);
+    sgu_assert_float_eq(neg_x_u.y, 0.0);
+    sgu_assert_float_eq(neg_x_u.z, 0.0);
+    sgu_assert_float_eq(neg_x_u.w, 1.0);
+}
+
 /*
  * test make_cube function
  */
@@ -480,6 +509,7 @@ int main(int argc, char *argv[])
 
     g_test_add_func("/mat3/mult_mat3 test", test_mult_mat3);
     g_test_add_func("/mat4/mult_mat4 test", test_mult_mat4);
+    g_test_add_func("/mat4/mult_mat4_vec4 test", test_mult_mat4_vec4);
 
     g_test_add_func("/shapes/make_cube test", test_make_cube);
 

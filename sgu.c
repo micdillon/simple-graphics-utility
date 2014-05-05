@@ -178,6 +178,15 @@ mat4 mult_mat4(mat4 a, mat4 b) {
 #undef val
 }
 
+vec4 mult_mat4_vec4(mat4 mat, vec4 v) {
+#define mval(i,j) mat.m[4*i+j]
+#define val(i) \
+    mval(i,0)*v.x + mval(i,1)*v.y + mval(i,2)*v.z + mval(i,3)*v.w
+    return (vec4){.v={val(0), val(1), val(2), val(3)}};
+#undef mv
+#undef val
+}
+
 mat4 look_at(vec3 eye, vec3 center, vec3 up) {
     vec3 n = norm3(add3(eye, neg3(center)));
     vec3 u = norm3(cross3(up, n));
@@ -248,4 +257,3 @@ bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts) {
 #undef MAX_VAL
 #undef MIN_VAL
 }
-
