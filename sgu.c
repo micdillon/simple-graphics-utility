@@ -214,3 +214,38 @@ mat4 project_frust(SGUfloat left, SGUfloat right,
     return _m;
 }
 
+bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts) {
+#define start_max_val -100000.0
+#define start_min_val 100000.0
+    SGUfloat max_x = start_max_val,
+             max_y = start_max_val,
+             max_z = start_max_val;
+    SGUfloat min_x = start_min_val,
+             min_y = start_min_val,
+             min_z = start_min_val;
+
+    for (int i=0; i<num_verts; i++) {
+        vec4 v = verts[i];
+        if (v.x > max_x) max_x = v.x;
+        if (v.x < min_x) min_x = v.x;
+        if (v.y > max_y) max_y = v.y;
+        if (v.y < min_y) min_y = v.y;
+        if (v.z > max_z) max_z = v.z;
+        if (v.z < min_z) min_z = v.z;
+    }
+
+    bounding_box _aabb = {
+        .ltf={.v={min_x, max_y, max_z, 1.0}},
+        .rtf={.v={max_x, max_y, max_z, 1.0}},
+        .rbf={.v={max_x, min_y, max_z, 1.0}},
+        .lbf={.v={min_x, min_y, max_z, 1.0}},
+        .ltb={.v={min_x, max_y, min_z, 1.0}},
+        .rtb={.v={max_x, max_y, min_z, 1.0}},
+        .rbb={.v={max_x, min_y, min_z, 1.0}},
+        .lbb={.v={min_x, min_y, min_z, 1.0}},
+    };
+    return _aabb;
+#undef MAX_VAL
+#undef MIN_VAL
+}
+

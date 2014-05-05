@@ -413,46 +413,67 @@ void test_make_cube() {
     g_assert(c.vert_count==8);
 }
 
+/*
+ * test fit_axis_aligned_bounding_box
+ */
+void test_fit_axis_aligned_bounding_box() {
+#define num_verts 10
+    vec4 *zero_verts = calloc(num_verts, sizeof(vec4));
+    for (int i=0; i<num_verts; i++) {
+        zero_verts[i] = (vec4){.v={0, 0, 0, 0}};
+    }
+
+    bounding_box zero_aabb = fit_axis_aligned_bounding_box(
+            zero_verts, num_verts);
+
+    for (int i=0; i<8; i++) {
+        sgu_assert_float_eq(zero_aabb.c[i].x, 0.0);
+        sgu_assert_float_eq(zero_aabb.c[i].y, 0.0);
+        sgu_assert_float_eq(zero_aabb.c[i].z, 0.0);
+        sgu_assert_float_eq(zero_aabb.c[i].w, 1.0);
+    }
+#undef num_verts
+}
 
 /*
  * main()
  * run the tests
  */
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
     srandomdev();
     g_test_init(&argc, &argv, NULL);
 
-    g_test_add("/vec2/union test", vec2fixture, NULL, 
+    g_test_add("/vec2/union test", vec2fixture, NULL,
                          vec2_setup, test_vec2_union, vec2_teardown);
 
-    g_test_add("/vec3/union test", vec3fixture, NULL, 
+    g_test_add("/vec3/union test", vec3fixture, NULL,
                          vec3_setup, test_vec3_union, vec3_teardown);
-    g_test_add("/vec3/norm_len test", vec3fixture, NULL, 
+    g_test_add("/vec3/norm_len test", vec3fixture, NULL,
                          vec3_setup, test_vec3_norm_len, vec3_teardown);
-    g_test_add("/vec3/abs test", vec3fixture, NULL, 
+    g_test_add("/vec3/abs test", vec3fixture, NULL,
                          vec3_setup, test_vec3_abs, vec3_teardown);
-    g_test_add("/vec3/neg test", vec3fixture, NULL, 
+    g_test_add("/vec3/neg test", vec3fixture, NULL,
                          vec3_setup, test_vec3_neg, vec3_teardown);
-    g_test_add("/vec3/add test", vec3fixture, NULL, 
+    g_test_add("/vec3/add test", vec3fixture, NULL,
                          vec3_setup, test_vec3_add, vec3_teardown);
-    g_test_add("/vec3/scalar_mult test", vec3fixture, NULL, 
+    g_test_add("/vec3/scalar_mult test", vec3fixture, NULL,
                          vec3_setup, test_vec3_scalar_mult, vec3_teardown);
-    g_test_add("/vec3/cross test", vec3fixture, NULL, 
+    g_test_add("/vec3/cross test", vec3fixture, NULL,
                          vec3_setup, test_vec3_cross, vec3_teardown);
-    g_test_add("/vec3/dot test", vec3fixture, NULL, 
+    g_test_add("/vec3/dot test", vec3fixture, NULL,
                          vec3_setup, test_vec3_dot, vec3_teardown);
 
-    g_test_add("/vec4/union test", vec4fixture, NULL, 
+    g_test_add("/vec4/union test", vec4fixture, NULL,
                          vec4_setup, test_vec4_union, vec4_teardown);
-    g_test_add("/vec4/norm_len test", vec4fixture, NULL, 
+    g_test_add("/vec4/norm_len test", vec4fixture, NULL,
                          vec4_setup, test_vec4_norm_len, vec4_teardown);
 
-    g_test_add("/quat/union test", quatfixture, NULL, 
+    g_test_add("/quat/union test", quatfixture, NULL,
                          quat_setup, test_quat_union, quat_teardown);
-    g_test_add("/quat/conjugate test", quatfixture, NULL, 
+    g_test_add("/quat/conjugate test", quatfixture, NULL,
                          quat_setup, test_quat_conjugate, quat_teardown);
-    g_test_add("/quat/mult test", quatfixture, NULL, 
+    g_test_add("/quat/mult test", quatfixture, NULL,
                          quat_setup, test_quat_mult, quat_teardown);
 
     g_test_add_func("/geom/rotateQ test", test_rotateQ);
@@ -461,6 +482,9 @@ int main(int argc, char *argv[])
     g_test_add_func("/mat4/mult_mat4 test", test_mult_mat4);
 
     g_test_add_func("/shapes/make_cube test", test_make_cube);
+
+    g_test_add_func("/shapes/fit_axis_aligned_bounding_box test",
+            test_fit_axis_aligned_bounding_box);
 
     return g_test_run();
 }

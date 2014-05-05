@@ -96,6 +96,21 @@ typedef union {
     SGUfloat m[16];
 } mat4;
 
+typedef union {
+    struct {
+        vec4 ltf;
+        vec4 rtf;
+        vec4 rbf;
+        vec4 lbf;
+        vec4 ltb;
+        vec4 rtb;
+        vec4 rbb;
+        vec4 lbb;
+    };
+    vec4 c[8];
+    SGUfloat d[32];
+} bounding_box;
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,6 +152,8 @@ mat4 project_persp(SGUfloat fovy_rad, SGUfloat aspect,
 mat4 project_frust(SGUfloat top, SGUfloat bottom,
                    SGUfloat left, SGUfloat right,
                    SGUfloat nearz, SGUfloat farz);
+
+bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts);
 
 #ifdef __cplusplus
 }
