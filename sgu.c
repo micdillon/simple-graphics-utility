@@ -39,6 +39,11 @@ vec3 add3(vec3 a, vec3 b) {
     return _v;
 }
 
+vec3 sub3(vec3 a, vec3 b) {
+    vec3 _v = {.v={a.x-b.x, a.y-b.y, a.z-b.z}};
+    return _v;
+}
+
 vec3 scalar_mult3(vec3 v, SGUfloat s) {
     vec3 _v = {.v={v.x*s, v.y*s, v.z*s}};
     return _v;
@@ -146,6 +151,28 @@ mat4 rotate_z_mat4(SGUfloat r) {
         0.0    , 0.0   , 0.0, 1.0
     }};
 }
+
+mat3 transpose_mat3(mat3 a) {
+#define a(i,j) a.m[3*i+j]
+    return (mat3){.m={
+        a(0,0), a(1,0), a(2,0),
+        a(0,1), a(1,1), a(2,1),
+        a(0,2), a(1,2), a(2,2),
+    }};
+#undef a
+}
+
+mat4 transpose_mat4(mat4 a) {
+#define a(i,j) a.m[4*i+j]
+    return (mat4){.m={
+        a(0,0), a(1,0), a(2,0), a(3,0),
+        a(0,1), a(1,1), a(2,1), a(3,1),
+        a(0,2), a(1,2), a(2,2), a(3,2),
+        a(0,3), a(1,3), a(2,3), a(3,3),
+    }};
+#undef a
+}
+
 
 SGUfloat det_mat3(mat3 a) {
 #define a(i,j) a.m[3*i+j]
@@ -361,42 +388,51 @@ bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts) {
 #undef MIN_VAL
 }
 
-int aabb_hit(vec2 touch_point, vec2 screen_size,
-        mat4 inv_view, mat4 inv_projection, bounding_box aabb)
+int test_bounds(bounding_box bb, vec2 point)
 {
-    vec4 ray = (vec4){.v={
-        (touch_point.x * 2.0) / screen_size.x - 1.0,
-        (touch_point.y * 2.0) / screen_size.y - 1.0,
-        -1.0, 1.0
-    }};
-    ray = mult_mat4_vec4(inv_projection, ray);
-    ray.z = -1.0; ray.w = 0.0;
-    ray = mult_mat4_vec4(inv_view, ray);
-    ray = norm4(ray);
-    vec3 ray_dir = {.v={ray.x, ray.y, ray.z}};
+    if (point.x > bb.min.x && point.x < bb.max.x &&
+            point.y > bb.min.y && point.y < bb.max.y) {
+        return 1;
+    }
+    return 0;
+}
 
-    vec3 ray_origin = {.v={0.0, 0.0, 0.0}};
+int aabb_hit(vec2 touch_point, vec2 screen_size, vec3 eye, vec3 center, vec3 up,
+        SGUfloat fov, SGUfloat nearz, bounding_box aabb)
+{
+    vec3 look_dir = sub3(center, eye);
+    vec3 near_plane_width = norm3(cross3(look_dir, up));
+    vec3 near_plane_height = up; // norm3(cross3(h, look_dir));
 
-    vec3 front_norm = {.v={0.0, 0.0, -1.0}};
-    vec3 top_norm   = {.v={0.0, 1.0, 0.0}};
-    vec3 back_norm  = {.v={0.0, 0.0, 1.0}};
-    vec3 under_norm = {.v={0.0, -1.0, 0.0}};
-    vec3 left_norm  = {.v={-1.0, 0.0, 0.0}};
-    vec3 right_norm = {.v={1.0, 0.0, 0.0}};
+    SGUfloat v_len = tan(fov / 2.0) * nearz * 2.0;
+    SGUfloat h_len = v_len * screen_size.w / screen_size.h;
 
-    int front_hit = -1.0 * (dot3(ray_origin, front_norm) + aabb.max.z) /
-            (dot3(ray_dir, front_norm)) > 0.0 ? 1 : 0;
-    int top_hit = -1.0 * (dot3(ray_origin, top_norm) + aabb.max.y) /
-            (dot3(ray_dir, top_norm)) > 0.0 ? 1 : 0;
-    int back_hit = -1.0 * (dot3(ray_origin, back_norm) + aabb.min.z) /
-            (dot3(ray_dir, back_norm)) > 0.0 ? 1 : 0;
-    int under_hit = -1.0 * (dot3(ray_origin, under_norm) + aabb.min.y) /
-            (dot3(ray_dir, under_norm)) > 0.0 ? 1 : 0;
-    int left_hit = -1.0 * (dot3(ray_origin, left_norm) + aabb.min.x) /
-            (dot3(ray_dir, left_norm)) > 0.0 ? 1 : 0;
-    int right_hit = -1.0 * (dot3(ray_origin, right_norm) + aabb.max.x) /
-            (dot3(ray_dir, right_norm)) > 0.0 ? 1 : 0;
+    near_plane_width = scalar_mult3(near_plane_width, h_len);
+    near_plane_height = scalar_mult3(near_plane_height, v_len);
 
-    return front_hit || top_hit || back_hit || under_hit || left_hit ||
-            right_hit;
+    SGUfloat x = (touch_point.x * 2.0) / screen_size.x - 1.0;
+    SGUfloat y = (touch_point.y * -2.0) / screen_size.y + 1.0;
+
+    vec3 near_plane_x_dir = scalar_mult3(near_plane_width, x);
+    vec3 near_plane_y_dir = scalar_mult3(near_plane_height, y);
+
+    vec3 pos = add3(add3(add3(eye, look_dir),
+                near_plane_x_dir), near_plane_y_dir);
+    vec3 dir = norm3(sub3(pos, eye));
+
+    vec3 front_norm = {.v={0.0, 0.0, 1.0}};
+
+    // TODO: Test other sides of the aabb
+    // vec3 top_norm   = {.v={0.0, 1.0, 0.0}};
+    // vec3 back_norm  = {.v={0.0, 0.0, -1.0}};
+    // vec3 under_norm = {.v={0.0, -1.0, 0.0}};
+    // vec3 left_norm  = {.v={-1.0, 0.0, 0.0}};
+    // vec3 right_norm = {.v={1.0, 0.0, 0.0}};
+
+    SGUfloat front_intersection =
+            dot3(sub3(aabb.max.xyz, eye), front_norm) / dot3(dir, front_norm);
+    vec3 front = scalar_mult3(dir, front_intersection);
+    int front_hit = test_bounds(aabb, front.xy);
+
+    return front_hit;
 }
