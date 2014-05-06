@@ -11,6 +11,8 @@
     */
 #define sgu_assert_float_eq(a,b) \
     g_assert_cmpfloat(fabs((a)-(b)), <=, 1.0e-15)
+#define sgu_assert_float_neq(a,b) \
+    g_assert_cmpfloat(fabs((a)-(b)), >, 1.0e-15)
 
 /**
     * sgu_rndf()
@@ -312,6 +314,91 @@ void test_rotateQ() {
 /*
  * matrix tests
  */
+
+void test_det_mat3() {
+    mat3 singular = {.m={
+        1.0, -2.0, 4.0,
+        0.0, 0.0, 6.0,
+        0.0, 0.0, 1.0
+    }};
+    sgu_assert_float_eq(det_mat3(singular), 0.0);
+
+    mat3 non_singular = {.m={
+        9.0, -6.0, -1.0,
+        3.0, -9.0, -8.0,
+        5.0, 7.0, 1.0
+    }};
+    sgu_assert_float_eq(det_mat3(non_singular), 615.0);
+}
+
+void test_det_mat4() {
+    mat4 singular = {.m={
+        16.0, 5.0, 9.0, 4.0,
+        2.0, 11.0, 7.0, 14.0,
+        3.0, 10.0, 6.0, 15.0,
+        13.0, 8.0, 12.0, 1.0
+    }};
+    sgu_assert_float_eq(det_mat4(singular), 0.0);
+
+    mat4 non_singular = {.m={
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    }};
+    sgu_assert_float_neq(det_mat4(non_singular), 0.0);
+}
+
+void test_invert_mat3() {
+    mat3 non_singular = {.m={
+        9.0, -6.0, -1.0,
+        3.0, -9.0, -8.0,
+        5.0, 7.0, 1.0
+    }};
+    mat3 inv = invert_mat3(non_singular);
+    sgu_assert_float_eq(inv.m[0], 47.0 / 615.0);
+    sgu_assert_float_eq(inv.m[1], -1.0 / 615.0);
+    sgu_assert_float_eq(inv.m[2], 39.0 / 615.0);
+
+    sgu_assert_float_eq(inv.m[3], -43.0 / 615.0);
+    sgu_assert_float_eq(inv.m[4], 14.0 / 615.0);
+    sgu_assert_float_eq(inv.m[5], 69.0 / 615.0);
+
+    sgu_assert_float_eq(inv.m[6], 66.0 / 615.0);
+    sgu_assert_float_eq(inv.m[7], -93.0 / 615.0);
+    sgu_assert_float_eq(inv.m[8], -63.0 / 615.0);
+}
+
+void test_invert_mat4() {
+    mat4 non_singular = {.m={
+        1.0, 1.0, 1.0, 1.0,
+        1.0, 2.0, 1.0, 2.0,
+        1.0, 1.0, 1.0, 0.0,
+        1.0, 4.0, 2.0, 3.0
+    }};
+    mat4 inv = invert_mat4(non_singular);
+
+    sgu_assert_float_eq(inv.m[0], -1.0);
+    sgu_assert_float_eq(inv.m[1], 2.0);
+    sgu_assert_float_eq(inv.m[2], 1.0);
+    sgu_assert_float_eq(inv.m[3], -1.0);
+
+    sgu_assert_float_eq(inv.m[4], -2.0);
+    sgu_assert_float_eq(inv.m[5], 1.0);
+    sgu_assert_float_eq(inv.m[6], 1.0);
+    sgu_assert_float_eq(inv.m[7], 0.0);
+
+    sgu_assert_float_eq(inv.m[8], 3.0);
+    sgu_assert_float_eq(inv.m[9], -3.0);
+    sgu_assert_float_eq(inv.m[10], -1.0);
+    sgu_assert_float_eq(inv.m[11], 1.0);
+
+    sgu_assert_float_eq(inv.m[12], 1.0);
+    sgu_assert_float_eq(inv.m[13], 0.0);
+    sgu_assert_float_eq(inv.m[14], -1.0);
+    sgu_assert_float_eq(inv.m[15], 0.0);
+}
+
 void test_mult_mat3() {
 #define assert_m3eq(a, b) {                             \
     for (int _i=0; _i<9; _i++)                          \
@@ -455,13 +542,39 @@ void test_fit_axis_aligned_bounding_box() {
     bounding_box zero_aabb = fit_axis_aligned_bounding_box(
             zero_verts, num_verts);
 
-    for (int i=0; i<8; i++) {
+    for (int i=0; i<2; i++) {
         sgu_assert_float_eq(zero_aabb.c[i].x, 0.0);
         sgu_assert_float_eq(zero_aabb.c[i].y, 0.0);
         sgu_assert_float_eq(zero_aabb.c[i].z, 0.0);
         sgu_assert_float_eq(zero_aabb.c[i].w, 1.0);
     }
 #undef num_verts
+}
+
+void test_aabb_hit() {
+    bounding_box box = {
+        .min={.v={-1, -1, -1, 1}},
+        .max={.v={ 1,  1,  1, 1}}
+    };
+
+    // inverse view
+    mat4 view = look_at(
+            (vec3){.v={100, 0, 0}}, // eye
+            (vec3){.v={0, 0, 0}}, // center
+            (vec3){.v={0, 1, 0}} // up
+            );
+    mat4 inv_view = invert_mat4(view);
+
+    // inverse projection
+    mat4 proj = project_persp(30.0, 1, 1.0, 10000.0);
+    mat4 inv_proj = invert_mat4(proj);
+
+    // TODO: Improve this test...
+    int res = aabb_hit(
+            (vec2){.v={0,0}}, // touch point
+            (vec2){.v={50,50}}, // screen size
+            inv_view, inv_proj, box);
+    g_assert(res == 1);
 }
 
 /*
@@ -507,6 +620,12 @@ int main(int argc, char *argv[])
 
     g_test_add_func("/geom/rotateQ test", test_rotateQ);
 
+    g_test_add_func("/mat3/det_mat3 test", test_det_mat3);
+    g_test_add_func("/mat3/det_mat4 test", test_det_mat4);
+
+    g_test_add_func("/mat3/invert_mat3 test", test_invert_mat3);
+    g_test_add_func("/mat3/invert_mat4 test", test_invert_mat4);
+
     g_test_add_func("/mat3/mult_mat3 test", test_mult_mat3);
     g_test_add_func("/mat4/mult_mat4 test", test_mult_mat4);
     g_test_add_func("/mat4/mult_mat4_vec4 test", test_mult_mat4_vec4);
@@ -515,6 +634,8 @@ int main(int argc, char *argv[])
 
     g_test_add_func("/shapes/fit_axis_aligned_bounding_box test",
             test_fit_axis_aligned_bounding_box);
+
+    g_test_add_func("/shapes/aabb_hit test", test_aabb_hit);
 
     return g_test_run();
 }

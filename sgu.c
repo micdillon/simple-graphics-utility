@@ -147,6 +147,115 @@ mat4 rotate_z_mat4(SGUfloat r) {
     }};
 }
 
+SGUfloat det_mat3(mat3 a) {
+#define a(i,j) a.m[3*i+j]
+    return a(0,0)*a(1,1)*a(2,2) + a(1,0)*a(2,1)*a(0,2) +
+        a(2,0)*a(0,1)*a(1,2) - a(0,0)*a(2,1)*a(1,2) - a(2,0)*a(1,1)*a(0,2) -
+        a(1,0)*a(0,1)*a(2,2);
+#undef a
+}
+
+SGUfloat det_mat4(mat4 a) {
+#define a(i,j) a.m[4*i+j]
+    return  a(0,0)*a(1,1)*a(2,2)*a(3,3) + a(0,0)*a(1,2)*a(2,3)*a(3,1) +
+            a(0,0)*a(1,3)*a(2,1)*a(3,2) + a(0,1)*a(1,0)*a(2,3)*a(3,2) +
+            a(0,1)*a(1,2)*a(2,0)*a(3,3) + a(0,1)*a(1,3)*a(2,2)*a(3,0) +
+            a(0,2)*a(1,0)*a(2,1)*a(3,3) + a(0,2)*a(1,1)*a(2,3)*a(3,0) +
+            a(0,2)*a(1,3)*a(2,0)*a(3,1) + a(0,3)*a(1,0)*a(2,2)*a(3,1) +
+            a(0,3)*a(1,1)*a(2,0)*a(3,2) + a(0,3)*a(1,2)*a(2,1)*a(3,0) -
+            a(0,0)*a(1,1)*a(2,3)*a(3,2) - a(0,0)*a(1,2)*a(2,1)*a(3,3) -
+            a(0,0)*a(1,3)*a(2,2)*a(3,1) - a(0,1)*a(1,0)*a(2,2)*a(3,3) -
+            a(0,1)*a(1,2)*a(2,3)*a(3,0) - a(0,1)*a(1,3)*a(2,0)*a(3,2) -
+            a(0,2)*a(1,0)*a(2,3)*a(3,1) - a(0,2)*a(1,1)*a(2,0)*a(3,3) -
+            a(0,2)*a(1,3)*a(2,1)*a(3,0) - a(0,3)*a(1,0)*a(2,1)*a(3,2) -
+            a(0,3)*a(1,1)*a(2,2)*a(3,0) - a(0,3)*a(1,2)*a(2,0)*a(3,1);
+#undef a
+}
+
+mat3 invert_mat3(mat3 a) {
+#define a(i,j) a.m[3*i+j]
+    SGUfloat s = 1.0 / det_mat3(a);
+    return (mat3) {.m={
+                (a(1,1)*a(2,2) - a(1,2)*a(2,1)) * s,
+                (a(0,2)*a(2,1) - a(0,1)*a(2,2)) * s,
+                (a(0,1)*a(1,2) - a(0,2)*a(1,1)) * s,
+
+                (a(1,2)*a(2,0) - a(1,0)*a(2,2)) * s,
+                (a(0,0)*a(2,2) - a(0,2)*a(2,0)) * s,
+                (a(0,2)*a(1,0) - a(0,0)*a(1,2)) * s,
+
+                (a(1,0)*a(2,1) - a(1,1)*a(2,0)) * s,
+                (a(0,1)*a(2,0) - a(0,0)*a(2,1)) * s,
+                (a(0,0)*a(1,1) - a(0,1)*a(1,0)) * s
+            }};
+#undef a
+}
+
+mat4 invert_mat4(mat4 a) {
+#define a(i,j) a.m[4*i+j]
+    SGUfloat s = 1.0 / det_mat4(a);
+
+    SGUfloat m0 =
+        a(1,1)*a(2,2)*a(3,3) + a(1,2)*a(2,3)*a(3,1) + a(1,3)*a(2,1)*a(3,2) -
+        a(1,1)*a(2,3)*a(3,2) - a(1,2)*a(2,1)*a(3,3) - a(1,3)*a(2,2)*a(3,1);
+    SGUfloat m1 =
+        a(0,1)*a(2,3)*a(3,2) + a(0,2)*a(2,1)*a(3,3) + a(0,3)*a(2,2)*a(3,1) -
+        a(0,1)*a(2,2)*a(3,3) - a(0,2)*a(2,3)*a(3,1) - a(0,3)*a(2,1)*a(3,2);
+    SGUfloat m2 =
+        a(0,1)*a(1,2)*a(3,3) + a(0,2)*a(1,3)*a(3,1) + a(0,3)*a(1,1)*a(3,2) -
+        a(0,1)*a(1,3)*a(3,2) - a(0,2)*a(1,1)*a(3,3) - a(0,3)*a(1,2)*a(3,1);
+    SGUfloat m3 =
+        a(0,1)*a(1,3)*a(2,2) + a(0,2)*a(1,1)*a(2,3) + a(0,3)*a(1,2)*a(2,1) -
+        a(0,1)*a(1,2)*a(2,3) - a(0,2)*a(1,3)*a(2,1) - a(0,3)*a(1,1)*a(2,2);
+
+    SGUfloat m4 =
+        a(1,0)*a(2,3)*a(3,2) + a(1,2)*a(2,0)*a(3,3) + a(1,3)*a(2,2)*a(3,0) -
+        a(1,0)*a(2,2)*a(3,3) - a(1,2)*a(2,3)*a(3,0) - a(1,3)*a(2,0)*a(3,2);
+    SGUfloat m5 =
+        a(0,0)*a(2,2)*a(3,3) + a(0,2)*a(2,3)*a(3,0) + a(0,3)*a(2,0)*a(3,2) -
+        a(0,0)*a(2,3)*a(3,2) - a(0,2)*a(2,0)*a(3,3) - a(0,3)*a(2,2)*a(3,0);
+    SGUfloat m6 =
+        a(0,0)*a(1,3)*a(3,2) + a(0,2)*a(1,0)*a(3,3) + a(0,3)*a(1,2)*a(3,0) -
+        a(0,0)*a(1,2)*a(3,3) - a(0,2)*a(1,3)*a(3,0) - a(0,3)*a(1,0)*a(3,2);
+    SGUfloat m7 =
+        a(0,0)*a(1,2)*a(2,3) + a(0,2)*a(1,3)*a(2,0) + a(0,3)*a(1,0)*a(2,2) -
+        a(0,0)*a(1,3)*a(2,2) - a(0,2)*a(1,0)*a(2,3) - a(0,3)*a(1,2)*a(2,0);
+
+    SGUfloat m8 =
+        a(1,0)*a(2,1)*a(3,3) + a(1,1)*a(2,3)*a(3,0) + a(1,3)*a(2,0)*a(3,1) -
+        a(1,0)*a(2,3)*a(3,1) - a(1,1)*a(2,0)*a(3,3) - a(1,3)*a(2,1)*a(3,0);
+    SGUfloat m9 =
+        a(0,0)*a(2,3)*a(3,1) + a(0,1)*a(2,0)*a(3,3) + a(0,3)*a(2,1)*a(3,0) -
+        a(0,0)*a(2,1)*a(3,3) - a(0,1)*a(2,3)*a(3,0) - a(0,3)*a(2,0)*a(3,1);
+    SGUfloat m10 =
+        a(0,0)*a(1,1)*a(3,3) + a(1,0)*a(1,3)*a(3,0) + a(0,3)*a(1,0)*a(3,1) -
+        a(0,0)*a(1,3)*a(3,1) - a(0,1)*a(1,0)*a(3,3) - a(0,3)*a(1,1)*a(3,0);
+    SGUfloat m11 =
+        a(0,0)*a(1,3)*a(2,1) + a(0,1)*a(1,0)*a(2,3) + a(0,3)*a(1,1)*a(2,0) -
+        a(0,0)*a(1,1)*a(2,3) - a(0,1)*a(1,3)*a(2,0) - a(0,3)*a(1,0)*a(2,1);
+
+    SGUfloat m12 =
+        a(1,0)*a(2,2)*a(3,1) + a(1,1)*a(2,0)*a(3,2) + a(1,2)*a(2,1)*a(3,0) -
+        a(1,0)*a(2,1)*a(3,2) - a(1,1)*a(2,2)*a(3,0) - a(1,2)*a(2,0)*a(3,1);
+    SGUfloat m13 =
+        a(0,0)*a(2,1)*a(3,2) + a(0,1)*a(2,2)*a(3,0) + a(0,2)*a(2,0)*a(3,1) -
+        a(0,0)*a(2,2)*a(3,1) - a(0,1)*a(2,0)*a(3,2) - a(0,2)*a(2,1)*a(3,0);
+    SGUfloat m14 =
+        a(0,0)*a(1,2)*a(3,1) + a(0,1)*a(1,0)*a(3,2) + a(0,2)*a(1,1)*a(3,0) -
+        a(0,0)*a(1,1)*a(3,2) - a(0,1)*a(1,2)*a(3,0) - a(0,2)*a(1,0)*a(3,1);
+    SGUfloat m15 =
+        a(0,0)*a(1,1)*a(2,2) + a(0,1)*a(1,2)*a(2,0) + a(0,2)*a(1,0)*a(2,1) -
+        a(0,0)*a(1,2)*a(2,1) - a(0,1)*a(1,0)*a(2,2) - a(0,2)*a(1,1)*a(2,0);
+
+    return (mat4) {.m={
+                m0*s, m1*s, m2*s, m3*s,
+                m4*s, m5*s, m6*s, m7*s,
+                m8*s, m9*s, m10*s, m11*s,
+                m12*s, m13*s, m14*s, m15*s,
+            }};
+#undef a
+}
+
 mat3 mult_mat3(mat3 a, mat3 b) {
 #define a(i,j) a.m[3*i+j]
 #define b(i,j) b.m[3*i+j]
@@ -244,16 +353,50 @@ bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts) {
     }
 
     bounding_box _aabb = {
-        .ltf={.v={min_x, max_y, max_z, 1.0}},
-        .rtf={.v={max_x, max_y, max_z, 1.0}},
-        .rbf={.v={max_x, min_y, max_z, 1.0}},
-        .lbf={.v={min_x, min_y, max_z, 1.0}},
-        .ltb={.v={min_x, max_y, min_z, 1.0}},
-        .rtb={.v={max_x, max_y, min_z, 1.0}},
-        .rbb={.v={max_x, min_y, min_z, 1.0}},
-        .lbb={.v={min_x, min_y, min_z, 1.0}},
+        .min={.v={min_x, min_y, min_z, 1.0}},
+        .max={.v={max_x, max_y, max_z, 1.0}},
     };
     return _aabb;
 #undef MAX_VAL
 #undef MIN_VAL
+}
+
+int aabb_hit(vec2 touch_point, vec2 screen_size,
+        mat4 inv_view, mat4 inv_projection, bounding_box aabb)
+{
+    vec4 ray = (vec4){.v={
+        (touch_point.x * 2.0) / screen_size.x - 1.0,
+        (touch_point.y * 2.0) / screen_size.y - 1.0,
+        -1.0, 1.0
+    }};
+    ray = mult_mat4_vec4(inv_projection, ray);
+    ray.z = -1.0; ray.w = 0.0;
+    ray = mult_mat4_vec4(inv_view, ray);
+    ray = norm4(ray);
+    vec3 ray_dir = {.v={ray.x, ray.y, ray.z}};
+
+    vec3 ray_origin = {.v={0.0, 0.0, 0.0}};
+
+    vec3 front_norm = {.v={0.0, 0.0, -1.0}};
+    vec3 top_norm   = {.v={0.0, 1.0, 0.0}};
+    vec3 back_norm  = {.v={0.0, 0.0, 1.0}};
+    vec3 under_norm = {.v={0.0, -1.0, 0.0}};
+    vec3 left_norm  = {.v={-1.0, 0.0, 0.0}};
+    vec3 right_norm = {.v={1.0, 0.0, 0.0}};
+
+    int front_hit = -1.0 * (dot3(ray_origin, front_norm) + aabb.max.z) /
+            (dot3(ray_dir, front_norm)) > 0.0 ? 1 : 0;
+    int top_hit = -1.0 * (dot3(ray_origin, top_norm) + aabb.max.y) /
+            (dot3(ray_dir, top_norm)) > 0.0 ? 1 : 0;
+    int back_hit = -1.0 * (dot3(ray_origin, back_norm) + aabb.min.z) /
+            (dot3(ray_dir, back_norm)) > 0.0 ? 1 : 0;
+    int under_hit = -1.0 * (dot3(ray_origin, under_norm) + aabb.min.y) /
+            (dot3(ray_dir, under_norm)) > 0.0 ? 1 : 0;
+    int left_hit = -1.0 * (dot3(ray_origin, left_norm) + aabb.min.x) /
+            (dot3(ray_dir, left_norm)) > 0.0 ? 1 : 0;
+    int right_hit = -1.0 * (dot3(ray_origin, right_norm) + aabb.max.x) /
+            (dot3(ray_dir, right_norm)) > 0.0 ? 1 : 0;
+
+    return front_hit || top_hit || back_hit || under_hit || left_hit ||
+            right_hit;
 }

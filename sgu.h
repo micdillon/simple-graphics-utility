@@ -96,19 +96,22 @@ typedef union {
     SGUfloat m[16];
 } mat4;
 
+// typedef union {
+//     struct {
+//         vec4 o;
+//         vec4 d;
+//     };
+//     vec4 c[2];
+//     SGUfloat d[8];
+// } ray;
+
 typedef union {
     struct {
-        vec4 ltf;
-        vec4 rtf;
-        vec4 rbf;
-        vec4 lbf;
-        vec4 ltb;
-        vec4 rtb;
-        vec4 rbb;
-        vec4 lbb;
+        vec4 min;
+        vec4 max;
     };
-    vec4 c[8];
-    SGUfloat d[32];
+    vec4 c[2];
+    SGUfloat d[8];
 } bounding_box;
 
 
@@ -143,6 +146,12 @@ mat4 rotate_x_mat4(SGUfloat rads);
 mat4 rotate_y_mat4(SGUfloat rads);
 mat4 rotate_z_mat4(SGUfloat rads);
 
+SGUfloat det_mat3(mat3 a);
+SGUfloat det_mat4(mat4 a);
+
+mat3 invert_mat3(mat3 a);
+mat4 invert_mat4(mat4 a);
+
 mat3 mult_mat3(mat3 a, mat3 b);
 mat4 mult_mat4(mat4 a, mat4 b);
 
@@ -156,6 +165,8 @@ mat4 project_frust(SGUfloat top, SGUfloat bottom,
                    SGUfloat nearz, SGUfloat farz);
 
 bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts);
+int aabb_hit(vec2 touch_point, vec2 screen_size,
+        mat4 inv_view, mat4 inv_projection, bounding_box aabb);
 
 #ifdef __cplusplus
 }
