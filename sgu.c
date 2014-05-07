@@ -397,31 +397,17 @@ int test_bounds(bounding_box bb, vec2 point)
     return 0;
 }
 
-int aabb_hit(vec2 touch_point, vec2 screen_size, vec3 eye, vec3 center, vec3 up,
-        SGUfloat fov, SGUfloat nearz, bounding_box aabb)
+int aabb_hit(vec2 touch_point, vec2 screen_size, SGUfloat nearz, vec3 eye,
+        mat4 inv_view_proj, bounding_box aabb)
 {
-    vec3 look_dir = sub3(center, eye);
-    vec3 near_plane_width = norm3(cross3(look_dir, up));
-    vec3 near_plane_height = up; // norm3(cross3(h, look_dir));
-
-    SGUfloat v_len = tan(fov / 2.0) * nearz * 2.0;
-    SGUfloat h_len = v_len * screen_size.w / screen_size.h;
-
-    near_plane_width = scalar_mult3(near_plane_width, h_len);
-    near_plane_height = scalar_mult3(near_plane_height, v_len);
-
-    SGUfloat x = (touch_point.x * 2.0) / screen_size.x - 1.0;
-    SGUfloat y = (touch_point.y * -2.0) / screen_size.y + 1.0;
-
-    vec3 near_plane_x_dir = scalar_mult3(near_plane_width, x);
-    vec3 near_plane_y_dir = scalar_mult3(near_plane_height, y);
-
-    vec3 pos = add3(add3(add3(eye, look_dir),
-                near_plane_x_dir), near_plane_y_dir);
-    vec3 dir = norm3(sub3(pos, eye));
+    vec4 touch = {.v={
+        (2.0 * touch_point.x) / screen_size.w - 1.0,
+        1.0 - (2.0 * touch_point.y) / screen_size.h,
+        -1.0, 1.0
+    }};
+    vec4 dir = mult_mat4_vec4(inv_view_proj, touch);
 
     vec3 front_norm = {.v={0.0, 0.0, 1.0}};
-
     // TODO: Test other sides of the aabb
     // vec3 top_norm   = {.v={0.0, 1.0, 0.0}};
     // vec3 back_norm  = {.v={0.0, 0.0, -1.0}};
@@ -430,8 +416,9 @@ int aabb_hit(vec2 touch_point, vec2 screen_size, vec3 eye, vec3 center, vec3 up,
     // vec3 right_norm = {.v={1.0, 0.0, 0.0}};
 
     SGUfloat front_intersection =
-            dot3(sub3(aabb.max.xyz, eye), front_norm) / dot3(dir, front_norm);
-    vec3 front = scalar_mult3(dir, front_intersection);
+            dot3(sub3(aabb.max.xyz, eye), front_norm) /
+                    dot3(dir.xyz, front_norm);
+    vec3 front = scalar_mult3(dir.xyz, front_intersection);
     int front_hit = test_bounds(aabb, front.xy);
 
     return front_hit;

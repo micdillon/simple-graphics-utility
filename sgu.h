@@ -172,9 +172,11 @@ mat4 project_frust(SGUfloat top, SGUfloat bottom,
                    SGUfloat nearz, SGUfloat farz);
 
 bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts);
+
 int test_bounds(bounding_box bb, vec2 point);
-int aabb_hit(vec2 touch_point, vec2 screen_size, vec3 eye, vec3 center, vec3 up,
-        SGUfloat fov, SGUfloat nearz, bounding_box aabb);
+
+int aabb_hit(vec2 touch_point, vec2 screen_size, SGUfloat nearz, vec3 eye,
+        mat4 inv_view_proj, bounding_box aabb);
 
 #ifdef __cplusplus
 }
