@@ -388,6 +388,15 @@ bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts) {
 #undef MIN_VAL
 }
 
+int test_intersection(vec3 eye, vec3 ray_dir,
+        vec3 plane_point, vec3 plane_norm, bounding_box aabb)
+{
+    SGUfloat t = dot3(sub3(plane_point, eye), plane_norm) /
+            dot3(ray_dir, plane_norm);
+    vec3 intersection_point = scalar_mult3(ray_dir, t);
+    return test_bounds(aabb, intersection_point.xy);
+}
+
 int test_bounds(bounding_box bb, vec2 point)
 {
     if (point.x > bb.min.x && point.x < bb.max.x &&
@@ -408,18 +417,29 @@ int aabb_hit(vec2 touch_point, vec2 screen_size, SGUfloat nearz, vec3 eye,
     vec4 dir = mult_mat4_vec4(inv_view_proj, touch);
 
     vec3 front_norm = {.v={0.0, 0.0, 1.0}};
-    // TODO: Test other sides of the aabb
-    // vec3 top_norm   = {.v={0.0, 1.0, 0.0}};
-    // vec3 back_norm  = {.v={0.0, 0.0, -1.0}};
-    // vec3 under_norm = {.v={0.0, -1.0, 0.0}};
-    // vec3 left_norm  = {.v={-1.0, 0.0, 0.0}};
-    // vec3 right_norm = {.v={1.0, 0.0, 0.0}};
+    int front_hit = test_intersection(eye, dir.xyz, aabb.max.xyz,
+            front_norm, aabb);
 
-    SGUfloat front_intersection =
-            dot3(sub3(aabb.max.xyz, eye), front_norm) /
-                    dot3(dir.xyz, front_norm);
-    vec3 front = scalar_mult3(dir.xyz, front_intersection);
-    int front_hit = test_bounds(aabb, front.xy);
+    vec3 top_norm   = {.v={0.0, 1.0, 0.0}};
+    int top_hit = test_intersection(eye, dir.xyz, aabb.max.xyz,
+            top_norm, aabb);
 
-    return front_hit;
+    vec3 back_norm  = {.v={0.0, 0.0, -1.0}};
+    int back_hit = test_intersection(eye, dir.xyz, aabb.min.xyz,
+            back_norm, aabb);
+
+    vec3 under_norm = {.v={0.0, -1.0, 0.0}};
+    int under_hit = test_intersection(eye, dir.xyz, aabb.min.xyz,
+            under_norm, aabb);
+
+    vec3 left_norm  = {.v={-1.0, 0.0, 0.0}};
+    int left_hit = test_intersection(eye, dir.xyz, aabb.min.xyz,
+            left_norm, aabb);
+
+    vec3 right_norm = {.v={1.0, 0.0, 0.0}};
+    int right_hit = test_intersection(eye, dir.xyz, aabb.max.xyz,
+            right_norm, aabb);
+
+    return front_hit || top_hit || back_hit || under_hit
+            || left_hit || right_hit;
 }

@@ -173,6 +173,8 @@ mat4 project_frust(SGUfloat top, SGUfloat bottom,
 
 bounding_box fit_axis_aligned_bounding_box(vec4 *verts, int num_verts);
 
+int test_intersection(vec3 eye, vec3 ray_dir, vec3 plane_point,
+        vec3 plan_norm, bounding_box aabb);
 int test_bounds(bounding_box bb, vec2 point);
 
 int aabb_hit(vec2 touch_point, vec2 screen_size, SGUfloat nearz, vec3 eye,
