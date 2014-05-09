@@ -125,15 +125,23 @@ extern "C" {
 /**
   * .... Functions ....
   */
+SGUfloat len2(vec2 v);
 SGUfloat len3(vec3 v);
 SGUfloat len4(vec4 v);
+
+vec2 norm2(vec2 v);
 vec3 norm3(vec3 v);
 vec4 norm4(vec4 v);
+
 vec3 abs3(vec3 v);
 vec3 neg3(vec3 v);
 vec3 add3(vec3 a, vec3 b);
 vec3 sub3(vec3 a, vec3 b);
+
+vec2 scalar_mult2(vec2 v, SGUfloat s);
 vec3 scalar_mult3(vec3 v, SGUfloat s);
+vec4 scalar_mult4(vec4 v, SGUfloat s);
+
 vec3 cross3(vec3 a, vec3 b);
 SGUfloat dot3(vec3 a, vec3 b);
 

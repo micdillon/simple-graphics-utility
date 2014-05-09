@@ -4,6 +4,10 @@
  */
 #include "sgu.h"
 
+SGUfloat len2(vec2 v) {
+    return sqrt(v.x*v.x + v.y*v.y);
+}
+
 SGUfloat len3(vec3 v) {
     return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
@@ -12,9 +16,15 @@ SGUfloat len4(vec4 v) {
     return sqrt(v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w);
 }
 
+vec2 norm2(vec2 v) {
+    SGUfloat scale = 1.0 / len2(v);
+    vec2 _v = (vec2){.v={v.x*scale, v.y*scale}};
+    return _v;
+}
+
 vec3 norm3(vec3 v) {
     SGUfloat scale = 1.0 / len3(v);
-    vec3 _v = (vec3){.v={v.x*scale, v.y*scale, v.z*scale }};
+    vec3 _v = (vec3){.v={v.x*scale, v.y*scale, v.z*scale}};
     return _v;
 }
 
@@ -44,8 +54,18 @@ vec3 sub3(vec3 a, vec3 b) {
     return _v;
 }
 
+vec2 scalar_mult2(vec2 v, SGUfloat s) {
+    vec2 _v = {.v={v.x*s, v.y*s}};
+    return _v;
+}
+
 vec3 scalar_mult3(vec3 v, SGUfloat s) {
     vec3 _v = {.v={v.x*s, v.y*s, v.z*s}};
+    return _v;
+}
+
+vec4 scalar_mult4(vec4 v, SGUfloat s) {
+    vec4 _v = {.v={v.x*s, v.y*s, v.z*s, v.w*s}};
     return _v;
 }
 
