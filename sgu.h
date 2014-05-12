@@ -152,6 +152,9 @@ quat conjQ(quat q);
 mat3 identity_mat3();
 mat4 identity_mat4();
 
+mat3 extract_translation_mat3(mat3 a);
+mat4 extract_translation_mat4(mat4 a);
+
 mat4 translate_mat4(SGUfloat x, SGUfloat y, SGUfloat z);
 mat4 scale_mat4(SGUfloat sx, SGUfloat sy, SGUfloat sz);
 mat4 rotate_x_mat4(SGUfloat rads);

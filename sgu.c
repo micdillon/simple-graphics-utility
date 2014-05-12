@@ -127,6 +127,27 @@ mat4 identity_mat4() {
     }};
 }
 
+mat3 extract_translation_mat3(mat3 a) {
+#define a(i,j) a.m[3*i+j]
+    return (mat3){.m={
+        1.0   , 0.0   , 0.0,
+        0.0   , 1.0   , 0.0,
+        a(2,0), a(2,1), 1.0,
+    }};
+#undef a
+}
+
+mat4 extract_translation_mat4(mat4 a) {
+#define a(i,j) a.m[4*i+j]
+    return (mat4){.m={
+        1.0   , 0.0   , 0.0   , 0.0,
+        0.0   , 1.0   , 0.0   , 0.0,
+        0.0   , 0.0   , 1.0   , 0.0,
+        a(3,0), a(3,1), a(3,2), 1.0
+    }};
+#undef a
+}
+
 mat4 translate_mat4(SGUfloat x, SGUfloat y, SGUfloat z) {
     return (mat4){.m={
         1.0, 0.0, 0.0, 0.0,
